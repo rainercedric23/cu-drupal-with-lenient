@@ -598,7 +598,6 @@
         "drupal/webform_newsletter2go": "^2.0",
         "drupal/webform_quiz": "^2.1",
         "drush/drush": "^13",
-        "dxp-modules/xi_custom_entity": "^3.0",
         "hubspot/api-client": "^13.0",
         "mglaman/composer-drupal-lenient": "^1.0",
         "npm-asset/browser-update": "^3.0",
