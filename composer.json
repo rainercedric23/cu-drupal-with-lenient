@@ -618,6 +618,7 @@
         "pantheon-se/node-composer": "^2.1",
         "pantheon-systems/upstream-management": "^1.0",
         "pantheon-upstreams/upstream-configuration": "dev-main",
+        "pantheon-systems/drupal-integrations": "^10",
         "phpseclib/phpseclib": "~3.0",
         "symfony/translation": "^6.4"
     },
