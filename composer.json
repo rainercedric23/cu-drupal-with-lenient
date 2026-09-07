@@ -1,14 +1,8 @@
 {
-    "name": "schwabe/composer-project",
-    "description": "Project template for 1xDX projects with composer",
+    "name": "pantheon-upstreams/drupal-composer-managed",
+    "description": "Install Drupal 9 with Composer on Pantheon.",
     "type": "project",
-    "license": "GPL-2.0-or-later",
-    "authors": [
-        {
-            "name": "1xINTERNET GmbH",
-            "email": "office@1xinternet.de"
-        }
-    ],
+    "license": "MIT",
     "repositories": [
         {
             "type": "composer",
@@ -17,18 +11,6 @@
         {
             "type": "composer",
             "url": "https://asset-packagist.org"
-        },
-        {
-            "type": "composer",
-            "url": "https://git.1xinternet.de/api/v4/group/4/-/packages/composer/"
-        },
-        {
-            "type": "composer",
-            "url": "https://git.1xinternet.de/api/v4/group/113/-/packages/composer/"
-        },
-        {
-            "type": "composer",
-            "url": "https://git.1xinternet.de/api/v4/group/392/-/packages/composer/"
         },
         {
             "type": "package",
@@ -451,12 +433,6 @@
         }
     ],
     "require": {
-        "1x-contrib-modules/usercentrics": "^2.0",
-        "1x-contrib-modules/webform_datalayer": "^1.0",
-        "1x-contrib-modules/xi-distro-update": "^2.0",
-        "1x-contrib-modules/xi-elastic": "10.8.8",
-        "1x-contrib-modules/xi-search-client": "<1.2",
-        "1x-contrib-modules/xi_scheduler": "^1.2",
         "bower-asset/lazysizes": "^5.1",
         "ckeditor/contents": "^0.11",
         "composer/installers": "^1.9",
@@ -649,8 +625,7 @@
         "pantheon-upstream/selective-update": "dev-main",
         "pantheon-upstreams/upstream-configuration": "dev-main",
         "phpseclib/phpseclib": "~3.0",
-        "symfony/translation": "^6.4",
-        "wikimedia/composer-merge-plugin": "^2.1"
+        "symfony/translation": "^6.4"
     },
     "require-dev": {
         "drupal/core-dev": "~10.5.0",
@@ -695,7 +670,6 @@
             "php-http/discovery": false,
             "phpstan/extension-installer": true,
             "tbachert/spi": false,
-            "wikimedia/composer-merge-plugin": true,
             "zodiacmedia/drupal-libraries-installer": true,
             "pantheon-upstream/selective-update": true,
             "symfony/runtime": true
@@ -705,19 +679,8 @@
         }
     },
     "scripts": {
-        "post-drupal-scaffold-cmd": [
-            "cd web && patch -p1 < ../patches/htaccess.patch",
-            "echo 'Disallow: /zaraz/' >> web/robots.txt",
-            "echo 'Disallow: /zaraz/*' >> web/robots.txt"
-        ],
-        "post-install-cmd": [
-            "bash -c \"if [[ -n '$CI' || -n '$PANTHEON_ENVIRONMENT' ]]; then cd web/profiles && mv custom contrib || true; fi\"",
-            "bash -c \"if [[ -n '$CI' || -n '$PANTHEON_ENVIRONMENT' ]]; then cd web/themes/custom/schwabe_base && ./build.sh; fi\""
-        ],
-        "post-update-cmd": [
-            "bash -c \"if [[ -n '$CI' || -n '$PANTHEON_ENVIRONMENT' ]]; then cd web/profiles && mv custom contrib || true; fi\"",
-            "bash -c \"if [[ -n '$CI' || -n '$PANTHEON_ENVIRONMENT' ]]; then cd web/themes/custom/schwabe_base && ./build.sh; fi\""
-        ]
+        "pre-update-cmd": ["DrupalComposerManaged\\ComposerScripts::preUpdate"],
+        "post-update-cmd": ["DrupalComposerManaged\\ComposerScripts::postUpdate"]
     },
     "extra": {
         "drupal-scaffold": {
@@ -773,191 +736,6 @@
         "patchLevel": {
             "drupal/core": "-p2"
         },
-        "merge-plugin": {
-            "include": [
-                "web/modules/contrib/dropzonejs/composer.libraries.json",
-                "web/modules/contrib/simple_klaro/composer.libraries.json",
-                "web/modules/contrib/single_datetime/composer.libraries.json",
-                "web/modules/contrib/webform/composer.libraries.json"
-            ]
-        },
-        "patches": {
-            "1x-contrib-modules/xi-elastic": {
-                "Skip all bundle entity reference fields from processing": "https://git.1xinternet.de/1x-contrib-modules/xi_elastic/-/merge_requests/97.patch",
-                "Schwabe rename noindex field": "./patches/xi-elastic_rename_field_exclude_from_index.patch",
-                "Schwabe add ace library locally because of CSP issues": "./patches/xi_elastic-ace-local.patch"
-            },
-            "drupal/advagg": {
-                "[https://dgo.to/3105088] - Warning: Deferred JavaScript Execution will not work with Drupal 8.8": "./patches/3105088-10.patch"
-            },
-            "drupal/acquia_search": {
-                "Prevent the installation of acquia_search_defaults": "./patches/acquia_search_defaults.patch"
-            },
-            "drupal/acsf": {
-                "[https://dgo.to/3196145] - Ignore .gitignore files in acsf-init-verify": "https://www.drupal.org/files/issues/2021-02-02/acsf-remove-gitignore-3196145-2.patch",
-                "[https://dgo.to/3169965] - Drush 10 support": "https://www.drupal.org/files/issues/2022-09-30/acsf-composer-add-drush-service-3169965-8.patch"
-            },
-            "drupal/anonymous_login": {
-                "[https://dgo.to/3607104] - Support language path prefixes": "https://git.drupalcode.org/project/anonymous_login/-/merge_requests/20.patch",
-                "[https://dgo.to/3564771] - Hard coded login page path is used instead of the configurable setting": "https://www.drupal.org/files/issues/2025-12-24/3564771-4.patch"
-            },
-            "drupal/bu": {
-                "[https://dgo.to/3213275] - Support repository placed in libraries folder": "https://www.drupal.org/files/issues/2021-05-10/Support_libraries_folder-3213275-2.patch"
-            },
-            "drupal/config_ignore": {
-                "[https://dgo.to/2973431] - Ignore collection filter": "https://www.drupal.org/files/issues/2019-12-27/config-ignore-collections-2973431-26.patch"
-            },
-            "drupal/core": {
-                "[https://dgo.to/3031598] + [https://dgo.to/3207813] - The \"paragraph\" entity type did not specify a translation handler. ": "https://www.drupal.org/files/issues/2024-11-21/always_load_module_files.patch",
-                "[https://dgo.to/3301239] - Improve the error message thrown in PoStreamReader::readLine() when translations cannot be saved": "patches/3301239-c6721a58.patch",
-                "[https://dgo.to/3083786] - The filter \"Convert line breaks into HTML (i.e. <br> and <p>)\" generates duplicate br tags after a line ending in a break tag that doesn't exactly match <br />": "https://www.drupal.org/files/issues/2024-08-08/3083786--mr-8066--10-3-backport.patch",
-                "[https://dgo.to/3087499] - Merge Help Topics classes into Help with BC layer": "https://www.drupal.org/files/issues/2024-10-24/3087499-94-entity-api.patch",
-                "[https://dgo.to/2689459] + [https://dgo.to/2863230] - If you don't want to translate your URL alias, the original URL alias won't work with your translations": "https://www.drupal.org/files/issues/2024-06-26/2689459_d10.3.0.patch",
-                "[https://dgo.to/2645202] - Re-saving a new bundle entity throws an exception": "https://www.drupal.org/files/issues/2020-02-28/drupal-resaving_new_bundle_crash-2645202-64-9.0.x.patch",
-                "[https://dgo.to/2924549] - Invoke hook after a site install is complete": "https://www.drupal.org/files/issues/2023-04-13/2924549-65.patch",
-                "[https://dgo.to/2672656] - Remove HTML Debug Comments from a particular field in debug mode ": "https://www.drupal.org/files/issues/2022-08-16/2672656-56.patch",
-                "[https://dgo.to/3069291] - Media entities support user cancel": "https://www.drupal.org/files/issues/2022-08-16/media_user_cancel-3069291-38-9.4.x.patch",
-                "[https://dgo.to/3003150] - Media library causes validation errors when it is used in a required field of a nested form": "patches/media_library_hash_bug.patch",
-                "[https://dgo.to/2466553] - Do not display untranslated menu items": "https://www.drupal.org/files/issues/2024-06-21/2466553-184-d10.3.x.patch",
-                "[https://dgo.to/3008292] - ImageItem::getUploadValidators() should be the source of truth for validating uploaded images": "https://www.drupal.org/files/issues/2025-07-11/3008292-10.5x-108.patch",
-                "[https://dgo.to/3300404] - Unserialize(): Passing null to parameter #1 ($data) of type string is deprecated": "https://www.drupal.org/files/issues/2024-06-08/3300404-63.patch",
-                "[https://dgo.to/3013435] - Translations directory not autocreated": "https://www.drupal.org/files/issues/2024-01-05/3013435-36.patch",
-                "Revert #3247553 and let core install without a config directory (ACSF specific)": "patches/core_install_without_config.patch",
-                "[https://dgo.to/2605218] - Views Block Display skips preBlockBuild() call on ajax rebuild": "https://www.drupal.org/files/issues/2024-06-13/2605218-135.patch"
-            },
-            "drupal/pathauto": {
-                "[https://dgo.to/2689459] + [https://dgo.to/2863230]": "https://www.drupal.org/files/issues/2024-10-22/2863230-16.patch"
-            },
-            "drupal/dropzonejs": {
-                "[https://dgo.to/2924425] - Maximum Upload Size Causes Silent JS Error": "https://www.drupal.org/files/issues/2021-01-18/2924425-maxFileSize-22.patch"
-            },
-            "drupal/easy_breadcrumb": {
-                "[https://dgo.to/3614683] - Add structured data JSON-LD independent of breadcrumb block placement": "https://git.drupalcode.org/project/easy_breadcrumb/-/merge_requests/194.patch"
-            },
-            "drupal/facets": {
-                "Make facets work with custom Schwabe block switcher for the search page": "./patches/make_facets_work_with_custom_block_switcher.patch"
-            },
-            "drupal/lazy": {
-                "#3268604 - Call to a member function getValue() on null in lazy_preprocess_field": "https://www.drupal.org/files/issues/2023-02-28/3268604-9.patch",
-                "[https://dgo.to/3285501] Missing feature detection for native lazy loading?": "https://www.drupal.org/files/issues/2022-08-30/lazy_native_detection.patch"
-            },
-            "drupal/inline_entity_form": {
-                "[https://dgo.to/2822764] - Support adding new entities when translating": "https://www.drupal.org/files/issues/2023-02-17/2822764-95.patch"
-            },
-            "drupal/metatag": {
-                "[https://dgo.to/3207281] - Support for upload of favicon files from realfavicongenerator.net": "./patches/metatag-favicons-zip-upload-v2.patch",
-                "[https://dgo.to/3207281] - local followup - Clear old favicon package": "./patches/clear-old-package-info.patch"
-            },
-            "drupal/migrate_source_csv": {
-                "Increase sourceID column size": "patches/migrate_source_csv-increase-id-column-size.patch"
-            },
-            "drupal/openid_connect": {
-                "Login redirect always": "./patches/openid_connect-login_redirect.patch",
-                "Use unique_name as sub": "./patches/openid_connect-swissrx-sub.patch",
-                "[https://dgo.to/3375886] - Warning: Undefined array key \"iss_allowed_domains\"": "./patches/openid_connect_3375886-11.patch"
-            },
-            "drupal/paragraphs": {
-                "[https://dgo.to/3342727] - Main entity language change does not propagate to nested paragraphs in preview mode": "https://www.drupal.org/files/issues/2023-02-17/3342727-2.patch",
-                "[https://dgo.to/3294727] - Add summary support for custom entity reference fields": "https://www.drupal.org/files/issues/2022-07-07/3294727-2.patch"
-            },
-            "drupal/paragraphs_edit": {
-                "[https://dgo.to/3283188] - Wrong paragraph translations edited if content language does not match currently displayed node language": "https://www.drupal.org/files/issues/2023-03-29/3283188-3.patch",
-                "[https://dgo.to/2914976] - Revisions log does not attribute author or timestamp correctly": "https://www.drupal.org/files/issues/2024-12-06/paragraphs_edit-revision-author-and-timestamp-2914976_32.patch"
-            },
-            "drupal/path_redirect_import": {
-                "Import to private file system": "patches/path_redirect_import-import-to-private-fs.patch"
-            },
-            "drupal/seckit": {
-                "Breaks sitemap.xml": "https://www.drupal.org/files/issues/2021-08-31/3219252-xmlsitemap.patch"
-            },
-            "drupal/simple_sitemap": {
-                "Hide translation set": "patches/sitemap_hide_translation_set.patch"
-            },
-            "drupal/commerce": {
-                "[https://dgo.to/2964780] - Create Add to Cart views field handler": "https://www.drupal.org/files/issues/2021-08-26/create_add_to_cart_views_field_handler-2964780-8.patch",
-                "[https://dgo.to/3297056] - Product config missing": "https://www.drupal.org/files/issues/2022-07-18/3297056-2.patch"
-            },
-            "drupal/commerce_cart_api": {
-                "Schwabe: do not flatten field items for Elastic search which requires all the data for entity reference fields": "./patches/commerce_cart_api-disable-flattening-for-elasticsearch.patch"
-            },
-            "drupal/conductor": {
-                "[https://dgo.to/3489930] - Form alterations break other modules": "https://git.drupalcode.org/project/conductor/-/merge_requests/44.patch"
-            },
-            "drupal/focal_point": {
-                "[https://dgo.to/3186353] - Image effect to crop by aspect ratio only": "https://www.drupal.org/files/issues/2023-05-22/3186353-15.patch"
-            },
-            "drupal/entity_share": {
-                "[https://dgo.to/3562235] - entity_share_client_update_8306() does not use Config Entity API for installing a new config entity": "https://www.drupal.org/files/issues/2025-12-09/3562235-2.patch"
-            },
-            "drupal/entity_share_cron": {
-                "[https://dgo.to/3438220] - Pages are processed multiple times before a full channel import": "https://www.drupal.org/files/issues/2024-05-15/3438220-4.patch"
-            },
-            "drupal/login_redirect_per_role": {
-                "Get redirect by user": "./patches/login_redirect_per_role_enable_reset_route.patch"
-            },
-            "drupal/simple_klaro": {
-                "Do not render banner on Lighthouse": "patches/klaro_1.9.4_lighthouse.patch",
-                "[https://dgo.to/3340311] Create a submodule to load GTM only after consent.": "https://git.drupalcode.org/project/simple_klaro/-/merge_requests/17.patch"
-            },
-            "drupal/stage_file_proxy": {
-                "[https://dgo.to/3490259] use_imagecache_root TRUE doesn't work with webp any more": "./patches/3490259-22.patch"
-            },
-            "drupal/symfony_mailer": {
-                "Schwabe: add \"Use Global SMTP Configuration\" option to the SMTP transport": "./patches/symfony_mailer_use_global_smtp_configuration.patch"
-            },
-            "drupal/flag": {
-                "[https://dgo.to/2886308] - \"Unflag not allowed text\" does not work": "https://www.drupal.org/files/issues/2022-12-08/2886308-49.patch",
-                "[https://dgo.to/2723703] - Add relationship to flagged entities when Flagging is base table": "https://www.drupal.org/files/issues/2021-11-08/2723703-76.patch"
-            },
-            "drupal/password_policy": {
-                "[https://dgo.to/3078741] - Password policies not apply to \"Forgot password\" form": "https://www.drupal.org/files/issues/2023-10-16/password_policy-prlp-63.patch"
-            },
-            "drupal/imagepin": {
-                "[https://dgo.to/3352443] Use ModuleHandlerInterface on widget form instead of core ModuleHandler class": "./patches/image_pin_3352443-4.patch",
-                "[https://dgo.to/3477056] Add edit function for imagepin widget": "https://www.drupal.org/files/issues/2024-10-22/3477056-8.patch"
-            },
-            "drupal/environment_indicator": {
-                "[https://dgo.re/3487202] Gin vertical toolbar submenu's overlap": "https://www.drupal.org/files/issues/2024-12-03/3487202-gin-vertical-toolbar-9.patch"
-            },
-            "drupal/content_templates": {
-                "Do not adjust contentview to add new field content_template": "./patches/content_templates_remove-contentview-adjustment.diff"
-            },
-            "drupal/watchdog_mailer": {
-                "Skip sending emails for low-severity logs during site-install before rewritten config is applied": "./patches/watchdog_mailer_skip_notices-during-site-install.patch"
-            },
-            "drupal/views_bulk_operations": {
-                "[https://dgo.to/3390108] drush updb fails with ViewsBulkOperationsEvent not found": "https://www.drupal.org/files/issues/2024-04-09/3390108-replace-constant-4.patch"
-            },
-            "drupal/cloudflare": {
-                "[https://dgo.to/3469998] Over 1200 API call limit not reset after 5 minutes": "https://www.drupal.org/files/issues/2024-08-26/5min-rate-check-reset-3469998-4.patch",
-                "[https://dgo.to/3536141] Zone listing cache is not updated when the API token/key is changed": "./patches/3536141-3.diff",
-                "[https://dgo.to/3536140] Endless loop when retrieving zones accross multiple pages": "./patches/3536140-3.diff"
-            },
-            "drupal/new_relic_rpm": {
-                "[https://dgo.to/3360583] Watchdog messages are not forwarding to Newrelic": "./patches/new_relic_rpm-3360583-3.patch"
-            },
-            "drupal/mrd": {
-                "[https://dgo.to/3447079]": "https://www.drupal.org/files/issues/2024-05-14/remove-dependency-3447079-1.patch"
-            },
-            "drupal/webform": {
-                "[https://dgo.to/3432428] Information message for file uploads is confusing when form limit is enabled": "https://www.drupal.org/files/issues/2024-03-20/3432428-webform-form_filesize_limit_message-3.patch"
-            },
-            "drupal/scorm_field": {
-                "3451599 - Configuration on install: unmet dependencies": "https://git.drupalcode.org/project/scorm_field/-/merge_requests/2.patch"
-            },
-            "drupal/webform_quiz": {
-                "[https://dgo.to/3591345] Quiz submit handlers incorrectly added to elements on non-quiz webforms when settings are empty": "https://git.drupalcode.org/project/webform_quiz/-/merge_requests/10.patch",
-                "Fix points local patch": "./patches/fix-points.patch"
-            },
-            "drupal/samlauth": {
-                "[https://dgo.to/3568434] - Prevent user enumeration attacks": "https://www.drupal.org/files/issues/2026-01-20/samlauth-user-enumeration-fix-3568434-3.patch"
-            },
-            "pantheon-systems/upstream-management": {
-                "Fix configure() return type for PHP 8.x compatibility": "./patches/upstream-management-configure-return-type.patch"
-            },
-            "drush/drush": {
-                "Make Psysh\\Shell::hasCommand() public for psy/psysh >= 0.12.22 compatibility": "./patches/drush-psysh-hascommand-visibility.patch"
-            }
-        }
+        "patches": {}
     }
 }
